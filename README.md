@@ -6,9 +6,9 @@ My set of solutions for [Advent of Code 2021](https://adventofcode.com/2021), wr
 
 My inputs from the challenges are all stored in the `inputs` directory, and at the time of writing these files are effectively hardcoded into the running.
 
-To run a particular day (i.e. _dayone_, _daytwo_, ...)
+To run a particular day (i.e. _sonarsweep_, ...)
 ```
-go run main.go -challenge dayone
+go run main.go -challenge sonarsweep
 ```
 
 To run all days
