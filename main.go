@@ -1,6 +1,7 @@
 package main
 
 import (
+	"advent/solutions/binarydiagnostic"
 	"advent/solutions/dive"
 	"advent/solutions/sonarsweep"
 	"flag"
@@ -16,6 +17,7 @@ func main() {
 	completed := []string{
 		"sonarsweep",
 		"dive",
+		"binarydiagnostic",
 	}
 	if *all {
 		for _, c := range completed {
@@ -36,6 +38,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "dive":
 		A, B := dive.LoadDive(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "binarydiagnostic":
+		A, B := binarydiagnostic.LoadBD(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
