@@ -4,6 +4,7 @@ import (
 	"advent/solutions/binarydiagnostic"
 	"advent/solutions/dive"
 	"advent/solutions/giantsquid"
+	"advent/solutions/hydrothermalventure"
 	"advent/solutions/sonarsweep"
 	"flag"
 	"fmt"
@@ -19,6 +20,8 @@ func main() {
 		"sonarsweep",
 		"dive",
 		"binarydiagnostic",
+		"giantsquid",
+		"hydrothermalventure",
 	}
 	if *all {
 		for _, c := range completed {
@@ -45,6 +48,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "giantsquid":
 		A, B := giantsquid.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "hydrothermalventure":
+		A, B := hydrothermalventure.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
