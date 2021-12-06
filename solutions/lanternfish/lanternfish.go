@@ -8,58 +8,38 @@ import (
 	"strings"
 )
 
-type LanternFish struct {
-	age int
-}
-
-func (f *LanternFish) Live() *LanternFish {
-	if f.age == 0 {
-		f.age = 6
-		return &LanternFish{age: 8}
-	}
-	f.age--
-	return nil
-}
-
-func SpawnFish(s string) (map[int][]*LanternFish, map[int]int, error) {
+func SpawnFish(s string) (map[int]int, error) {
 	fishAges := strings.Split(s, ",")
 	counts := map[int]int{}
+	for i := 0; i < 8; i++ {
+		counts[i] = 0
+	}
 	for _, f := range fishAges {
 		age, err := strconv.Atoi(f)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		counts[age]++
 	}
-	fish := make(map[int][]*LanternFish, len(counts))
-	for age := range counts {
-		fish[age] = []*LanternFish{&LanternFish{age: age}}
-	}
-	return fish, counts, nil
+
+	return counts, nil
 }
 
 func CircleOfLife(s string, cycles int) (int, error) {
-	fishes, counts, err := SpawnFish(s)
+	counts, err := SpawnFish(s)
 	if err != nil {
 		return 0, err
 	}
-	totals := map[int]int{}
-	for age := range fishes {
-		for i := 0; i < cycles; i++ {
-			newFish := []*LanternFish{}
-			for _, f := range fishes[age] {
-				newF := f.Live()
-				if newF != nil {
-					newFish = append(newFish, newF)
-				}
-			}
-			fishes[age] = append(fishes[age], newFish...)
+	for i := 0; i < cycles; i++ {
+		newFish := counts[0]
+		for j := 1; j <= 8; j++ {
+			counts[j-1] = counts[j]
 		}
-		totals[age] = len(fishes[age]) * counts[age]
-		fishes[age] = nil
+		counts[8] = newFish
+		counts[6] += newFish
 	}
 	count := 0
-	for _, total := range totals {
+	for _, total := range counts {
 		count += total
 	}
 	return count, nil

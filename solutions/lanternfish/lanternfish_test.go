@@ -27,7 +27,7 @@ func TestCircleOfLife(t *testing.T) {
 			name:        "so long and thanks for all the fish",
 			input:       "3,4,3,1,2",
 			cycleLength: 256,
-			expected:    5934,
+			expected:    26984457539,
 		},
 	}
 	for _, test := range tests {

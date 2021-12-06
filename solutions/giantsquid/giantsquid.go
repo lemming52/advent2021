@@ -2,6 +2,7 @@ package giantsquid
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -127,8 +128,8 @@ func newBingoGame(numbers string, boards [][]string) (*BingoGame, error) {
 		numbers:     make([]int, len(values)),
 		boards:      make([]*Board, boardCount),
 		boardCount:  boardCount,
-		numbersChan: make(chan int, boardCount),
-		resultsChan: make(chan int, boardCount),
+		numbersChan: make(chan int),
+		resultsChan: make(chan int),
 	}
 	for i, v := range values {
 		val, err := strconv.Atoi(v)
@@ -173,9 +174,7 @@ func (b *BingoGame) callNumbers() (int, int) {
 }
 
 func (b *BingoGame) finishGame() {
-	for i := 0; i < b.boardCount; i++ {
-		b.numbersChan <- endGame
-	}
+	close(b.numbersChan)
 }
 
 func (b *BingoGame) PlayToLose() int {
@@ -189,13 +188,17 @@ func (b *BingoGame) PlayToLose() int {
 
 func (b *BingoGame) callNumbersLosing() (int, int) {
 	for _, val := range b.numbers {
+		fmt.Println("board count", b.boardCount)
 		for i := 0; i < b.boardCount; i++ {
+			fmt.Print(".")
 			b.numbersChan <- val
 		}
 		active := b.boardCount
 		for i := 0; i < active; i++ {
+			fmt.Print("-")
 			res := <-b.resultsChan
 			if res != noWin {
+				fmt.Println("result", res, b.boardCount)
 				if b.boardCount == 1 {
 					return res, val
 				}
