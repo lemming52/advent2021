@@ -5,6 +5,7 @@ import (
 	"advent/solutions/dive"
 	"advent/solutions/giantsquid"
 	"advent/solutions/hydrothermalventure"
+	"advent/solutions/lanternfish"
 	"advent/solutions/sonarsweep"
 	"flag"
 	"fmt"
@@ -51,6 +52,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "hydrothermalventure":
 		A, B := hydrothermalventure.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "lanternfish":
+		A, B := lanternfish.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
