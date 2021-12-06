@@ -2,7 +2,6 @@ package giantsquid
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -26,7 +25,6 @@ type Board struct {
 	number   int
 	incoming chan int
 	results  chan int
-	won bool
 }
 
 func newBoard(values []string, boardNumber int, numbersChan, resultsChan chan int) (*Board, error) {
@@ -107,6 +105,7 @@ func (b *Board) Play() {
 		y, x, played := b.mark(value)
 		if played && b.hasWon(y, x) {
 			b.results <- b.number
+			return
 		} else {
 			b.results <- noWin
 		}
@@ -159,12 +158,13 @@ func (b *BingoGame) Play() int {
 
 func (b *BingoGame) callNumbers() (int, int) {
 	for _, val := range b.numbers {
-		for i := 0; i < len(b.boards); i++ {
+		for i := 0; i < b.boardCount; i++ {
 			b.numbersChan <- val
 		}
-		for i := 0; i < len(b.boards; i++ {
+		for i := 0; i < b.boardCount; i++ {
 			res := <-b.resultsChan
 			if res != noWin {
+				b.boardCount--
 				return res, val
 			}
 		}
@@ -182,7 +182,7 @@ func (b *BingoGame) PlayToLose() int {
 	for _, board := range b.boards {
 		go board.Play()
 	}
-	winner, value := b.callNumbers()
+	winner, value := b.callNumbersLosing()
 	b.finishGame()
 	return b.boards[winner].score(value)
 }
@@ -192,17 +192,21 @@ func (b *BingoGame) callNumbersLosing() (int, int) {
 		for i := 0; i < b.boardCount; i++ {
 			b.numbersChan <- val
 		}
-		for i := 0; i < b.boardCount; i++ {
+		active := b.boardCount
+		for i := 0; i < active; i++ {
 			res := <-b.resultsChan
 			if res != noWin {
-				return res, val
+				if b.boardCount == 1 {
+					return res, val
+				}
+				b.boardCount--
 			}
 		}
 	}
 	return noWin, 0
 }
 
-func Challenge(path string) (int, int64) {
+func Challenge(path string) (int, int) {
 	file, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
@@ -219,7 +223,6 @@ func Challenge(path string) (int, int64) {
 		text := scanner.Text()
 		if text == "" {
 			boards = append(boards, board)
-			fmt.Println(board, len(board))
 			board = []string{}
 			continue
 		}
@@ -228,10 +231,13 @@ func Challenge(path string) (int, int64) {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Println(numbers, boards)
 	bingo, err := newBingoGame(numbers, boards)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return bingo.Play(), 0
+	losing, err := newBingoGame(numbers, boards)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return bingo.Play(), losing.PlayToLose()
 }
