@@ -3,6 +3,7 @@ package main
 import (
 	"advent/solutions/binarydiagnostic"
 	"advent/solutions/dive"
+	"advent/solutions/giantsquid"
 	"advent/solutions/sonarsweep"
 	"flag"
 	"fmt"
@@ -41,6 +42,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "binarydiagnostic":
 		A, B := binarydiagnostic.LoadBD(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "giantsquid":
+		A, B := giantsquid.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
