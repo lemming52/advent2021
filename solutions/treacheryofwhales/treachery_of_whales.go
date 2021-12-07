@@ -19,12 +19,8 @@ func (c *FuelCostCounter) calculateCost(f float64) int {
 	if val, ok := c.costs[f]; ok {
 		return val
 	}
-	total, intMax := 0, int(f)
-	for i := 0; i < intMax; i++ {
-		total += i + 1
-	}
-	c.costs[f] = total
-	return total
+	c.costs[f] = int((f*f + f) / 2)
+	return c.costs[f]
 }
 
 func CrabSubmarines(s string) (int, int, error) {
