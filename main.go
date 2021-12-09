@@ -12,6 +12,7 @@ import (
 	"advent/solutions/treacheryofwhales"
 	"flag"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -29,10 +30,15 @@ func main() {
 		"lanternfish",
 		"treacheryofwhales",
 		"sevensegmentsearch",
+		"smokebasin",
 	}
 	if *all {
+		previous := time.Now()
+		fmt.Println("Start Time: ", time.Now())
 		for _, c := range completed {
-			fmt.Println(RunChallenge(c))
+			current := time.Now()
+			fmt.Println(RunChallenge(c), " Duration/ms: ", float64(current.Sub(previous).Microseconds())/1000)
+			previous = current
 		}
 	} else {
 		fmt.Println(RunChallenge(challenge))

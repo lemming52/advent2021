@@ -2,7 +2,6 @@ package giantsquid
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -188,17 +187,13 @@ func (b *BingoGame) PlayToLose() int {
 
 func (b *BingoGame) callNumbersLosing() (int, int) {
 	for _, val := range b.numbers {
-		fmt.Println("board count", b.boardCount)
 		for i := 0; i < b.boardCount; i++ {
-			fmt.Print(".")
 			b.numbersChan <- val
 		}
 		active := b.boardCount
 		for i := 0; i < active; i++ {
-			fmt.Print("-")
 			res := <-b.resultsChan
 			if res != noWin {
-				fmt.Println("result", res, b.boardCount)
 				if b.boardCount == 1 {
 					return res, val
 				}
