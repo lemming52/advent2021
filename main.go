@@ -9,6 +9,7 @@ import (
 	"advent/solutions/sevensegmentsearch"
 	"advent/solutions/smokebasin"
 	"advent/solutions/sonarsweep"
+	"advent/solutions/syntaxscoring"
 	"advent/solutions/treacheryofwhales"
 	"flag"
 	"fmt"
@@ -31,6 +32,7 @@ func main() {
 		"treacheryofwhales",
 		"sevensegmentsearch",
 		"smokebasin",
+		"syntaxscoring",
 	}
 	if *all {
 		previous := time.Now()
@@ -76,6 +78,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "smokebasin":
 		A, B := smokebasin.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "syntaxscoring":
+		A, B := syntaxscoring.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
