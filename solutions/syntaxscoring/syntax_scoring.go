@@ -50,7 +50,6 @@ func (c *ChunkParser) parseLine(l string) {
 			index++
 		case '}', '>', ']', ')':
 			if c.brackets[index-1] != complement(r) {
-				// Corrupted
 				c.corruptTotal += c.corruptScores[r]
 				return
 			}

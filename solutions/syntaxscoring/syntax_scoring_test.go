@@ -14,7 +14,7 @@ func TestSpecifyParseLines(t *testing.T) {
 		expectedIncomplete int
 	}{
 		{
-			name: "vertical",
+			name: "base",
 			input: []string{
 				"[({(<(())[]>[[{[]{<()<>>",
 				"[(()[<>])]({[<{<<[]>>(",
@@ -35,9 +35,8 @@ func TestSpecifyParseLines(t *testing.T) {
 		tt := test
 		t.Run(tt.name, func(t *testing.T) {
 			corrupt, incomplete := ParseLines(tt.input)
-			assert.Equal(t, tt.expectedCorrupt, corrupt, "returned value should match expected	")
-			assert.Equal(t, tt.expectedIncomplete, incomplete, "returned value should match expected	")
-
+			assert.Equal(t, tt.expectedCorrupt, corrupt, "returned value should match expected")
+			assert.Equal(t, tt.expectedIncomplete, incomplete, "returned value should match expected")
 		})
 	}
 }
