@@ -7,6 +7,7 @@ import (
 	"advent/solutions/giantsquid"
 	"advent/solutions/hydrothermalventure"
 	"advent/solutions/lanternfish"
+	"advent/solutions/passagepathing"
 	"advent/solutions/sevensegmentsearch"
 	"advent/solutions/smokebasin"
 	"advent/solutions/sonarsweep"
@@ -34,6 +35,8 @@ func main() {
 		"sevensegmentsearch",
 		"smokebasin",
 		"syntaxscoring",
+		"dumbooctopus",
+		"passagepathing",
 	}
 	if *all {
 		previous := time.Now()
@@ -85,6 +88,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "dumbooctopus":
 		A, B := dumbooctopus.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "passagepathing":
+		A, B := passagepathing.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
