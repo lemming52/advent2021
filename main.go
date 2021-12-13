@@ -12,6 +12,7 @@ import (
 	"advent/solutions/smokebasin"
 	"advent/solutions/sonarsweep"
 	"advent/solutions/syntaxscoring"
+	"advent/solutions/transparentorigami"
 	"advent/solutions/treacheryofwhales"
 	"flag"
 	"fmt"
@@ -37,6 +38,7 @@ func main() {
 		"syntaxscoring",
 		"dumbooctopus",
 		"passagepathing",
+		"transparentorigami",
 	}
 	if *all {
 		previous := time.Now()
@@ -91,6 +93,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "passagepathing":
 		A, B := passagepathing.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "transparentorigami":
+		A, B := transparentorigami.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res

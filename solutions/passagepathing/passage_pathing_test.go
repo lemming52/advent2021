@@ -71,9 +71,9 @@ func TestMapCaves(t *testing.T) {
 	for _, test := range tests {
 		tt := test
 		t.Run(tt.name, func(t *testing.T) {
-			paths, incomplete := MapCaves(tt.input)
+			paths, twice := MapCaves(tt.input)
 			assert.Equal(t, tt.paths, paths, "returned value should match expected")
-			assert.Equal(t, tt.twice, incomplete, "returned value should match expected")
+			assert.Equal(t, tt.twice, twice, "returned value should match expected")
 		})
 	}
 }
