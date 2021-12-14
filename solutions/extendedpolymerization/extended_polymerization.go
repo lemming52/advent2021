@@ -12,6 +12,7 @@ const instructionPattern = `(\w{2}) -> (\w)`
 type PolymerFactory struct {
 	polymer    []rune
 	insertions map[string]rune
+	created    map[string][]string
 	counts     map[rune]int
 }
 
@@ -28,6 +29,7 @@ func newPolymerFactory(polymer string, insertions []string) (*PolymerFactory, er
 		polymer:    []rune(polymer),
 		insertions: map[string]rune{},
 		counts:     counts,
+		created:    map[string][]string{},
 	}
 	for _, i := range insertions {
 		p.parseInsertion(i, pattern)
@@ -38,22 +40,36 @@ func newPolymerFactory(polymer string, insertions []string) (*PolymerFactory, er
 func (p *PolymerFactory) parseInsertion(s string, pattern *regexp.Regexp) {
 	components := pattern.FindStringSubmatch(s)
 	p.insertions[components[1]] = rune(components[2][0])
+	p.created[components[1]] = []string{
+		string(components[1][0]) + components[2],
+		components[2] + string(components[1][1]),
+	}
 }
 
-func (p *PolymerFactory) extend() {
-	newPolymer := []rune{}
-	for i := 0; i < len(p.polymer)-1; i++ {
-		pair := string(p.polymer[i : i+2])
-		r, ok := p.insertions[pair]
-		if ok {
-			newPolymer = append(newPolymer, p.polymer[i], r)
-			p.counts[r]++
-		} else {
-			newPolymer = append(newPolymer, p.polymer[i])
+func (p *PolymerFactory) extend(pairs map[string]int, steps int) {
+	for steps > 0 {
+		newPairs := make(map[string]int, len(pairs))
+		for pair, count := range pairs {
+			newPairs[pair] += count
+			if count == 0 {
+				continue
+			}
+			r, ok := p.insertions[pair]
+			if !ok {
+				continue
+			}
+			p.counts[r] += count
+			newPairs[pair] -= count
+			c, ok := p.created[pair]
+			if !ok {
+				continue
+			}
+			newPairs[c[0]] += count
+			newPairs[c[1]] += +count
 		}
+		steps--
+		pairs = newPairs
 	}
-	newPolymer = append(newPolymer, p.polymer[len(p.polymer)-1])
-	p.polymer = newPolymer
 }
 
 func (p *PolymerFactory) calculate() int {
@@ -75,9 +91,11 @@ func ExtendPolymer(polymer string, subs []string, steps int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	for i := 0; i < steps; i++ {
-		p.extend()
+	pairs := map[string]int{}
+	for i := 0; i < len(polymer)-1; i++ {
+		pairs[string(polymer[i:i+2])]++
 	}
+	p.extend(pairs, steps)
 	return p.calculate(), nil
 }
 
