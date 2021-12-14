@@ -65,26 +65,21 @@ func (o *Origami) Print() {
 			yMax = v[1]
 		}
 	}
-	grid := make([][]string, yMax+1)
-	for i := 0; i <= yMax; i++ {
-		grid[i] = make([]string, xMax+1)
-	}
-	for _, v := range o.dots {
-		grid[v[1]][v[0]] = "#"
-	}
 	delimiter := ""
 	for i := 0; i <= xMax; i++ {
 		delimiter += "-"
 	}
 	fmt.Println(delimiter)
-	for _, y := range grid {
+	for i := 0; i <= yMax; i++ {
 		s := ""
-		for _, x := range y {
-			if x == "" {
-				s += " "
+		for j := 0; j <= xMax; j++ {
+			_, ok := o.dots[fmt.Sprintf("%d,%d", j, i)]
+			if ok {
+				s += "#"
 			} else {
-				s += x
+				s += " "
 			}
+
 		}
 		fmt.Println(s)
 	}

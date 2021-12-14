@@ -18,7 +18,8 @@ func newCave(a string) *Cave {
 	return &Cave{
 		name:      a,
 		large:     isUpper(a),
-		connected: []*Cave{}}
+		connected: []*Cave{},
+	}
 }
 
 func isUpper(s string) bool {

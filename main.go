@@ -4,6 +4,7 @@ import (
 	"advent/solutions/binarydiagnostic"
 	"advent/solutions/dive"
 	"advent/solutions/dumbooctopus"
+	"advent/solutions/extendedpolymerization"
 	"advent/solutions/giantsquid"
 	"advent/solutions/hydrothermalventure"
 	"advent/solutions/lanternfish"
@@ -39,6 +40,7 @@ func main() {
 		"dumbooctopus",
 		"passagepathing",
 		"transparentorigami",
+		"extendedpolymerization",
 	}
 	if *all {
 		previous := time.Now()
@@ -96,6 +98,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "transparentorigami":
 		A, B := transparentorigami.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "extendedpolymerization":
+		A, B := extendedpolymerization.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
