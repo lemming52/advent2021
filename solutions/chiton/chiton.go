@@ -30,6 +30,7 @@ type Cave struct {
 	distances []*Node
 	yMax      int
 	xMax      int
+	minimums  [][]int // for the hack
 }
 
 func (c *Cave) dijkstra() {
