@@ -37,6 +37,26 @@ func (c *Cave) explore(y, x, total, min int) int {
 	return min
 }
 
+func (c *Cave) minimumFromPoint(y, x int) {
+	value := val(c.chiton[y][x])
+	if y == c.yMax && x == c.xMax {
+		c.minimums[y][x] = value
+		return
+	}
+	minimum := 0
+	coords := c.getCoords(y, x)
+	for _, yx := range coords {
+		adjacentMinimum := c.minimums[yx[0]][yx[1]]
+		if adjacentMinimum == 0 {
+			continue
+		}
+		if adjacentMinimum+value < minimum || minimum == 0 {
+			minimum = adjacentMinimum + value
+		}
+	}
+	c.minimums[y][x] = minimum
+}
+
 func (c *Cave) getCoords(y, x int) [][]int {
 	coords := [][]int{
 		[]int{y + 1, x},
@@ -72,8 +92,18 @@ func AvoidChiton(chiton []string) int {
 		yMax:   len(chiton) - 1,
 		xMax:   len(chiton[0]) - 1,
 	}
-	naiveMinimum := cave.naiveMinimum()
-	return cave.explore(0, 0, -val(chiton[0][0]), naiveMinimum)
+	mins := make([][]int, cave.yMax+1)
+	for i := 0; i <= cave.xMax; i++ {
+		mins[i] = make([]int, cave.xMax+1)
+	}
+	cave.minimums = mins
+	for i := cave.xMax; i >= 0; i-- {
+		for j := cave.yMax; j >= 0; j-- {
+			cave.minimumFromPoint(j, i)
+		}
+	}
+	fmt.Println(cave.minimums)
+	return cave.minimums[0][0] - val(chiton[0][0])
 }
 
 func Challenge(path string) (int, int) {
