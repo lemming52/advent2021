@@ -2,6 +2,7 @@ package main
 
 import (
 	"advent/solutions/binarydiagnostic"
+	"advent/solutions/chiton"
 	"advent/solutions/dive"
 	"advent/solutions/dumbooctopus"
 	"advent/solutions/extendedpolymerization"
@@ -101,6 +102,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "extendedpolymerization":
 		A, B := extendedpolymerization.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "chiton":
+		A, B := chiton.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res

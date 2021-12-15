@@ -65,7 +65,7 @@ func (p *PolymerFactory) extend(pairs map[string]int, steps int) {
 				continue
 			}
 			newPairs[c[0]] += count
-			newPairs[c[1]] += +count
+			newPairs[c[1]] += count
 		}
 		steps--
 		pairs = newPairs
