@@ -3,81 +3,87 @@ package chiton
 import (
 	"bufio"
 	"log"
+	"math"
 	"os"
 )
 
 const runeOffset = 48
 
-type Cave struct {
-	chiton   []string
-	minimums [][]int
-	yMax     int
-	xMax     int
+type Node struct {
+	y, x, distance, value int
+	visited               bool
 }
 
-func (c *Cave) explore(y, x, total, min int) int {
-	total = total + val(c.chiton[y][x])
-	if y == c.yMax && x == c.xMax {
-		return total
+func newNode(y, x, value int) *Node {
+	return &Node{
+		y:        y,
+		x:        x,
+		distance: math.MaxInt,
+		visited:  false,
+		value:    value,
 	}
-	if total > min {
-		return total
+}
+
+type Cave struct {
+	chiton    []string
+	nodes     [][]*Node
+	distances []*Node
+	yMax      int
+	xMax      int
+}
+
+func (c *Cave) dijkstra() {
+	current := c.nodes[0][0]
+	current.distance = 0
+	for current.y != c.yMax || current.x != c.xMax {
+		c.distances = c.distances[1:]
+		current.visited = true
+		neighbours := c.getCoords(current.y, current.x)
+		for _, n := range neighbours {
+			tentative := current.distance + n.value
+			if tentative < n.distance {
+				n.distance = tentative
+				c.sortNodes(n)
+			}
+		}
+		current = c.distances[0]
 	}
-	coords := c.getCoords(y, x)
-	for _, yx := range coords {
-		newTotal := c.explore(yx[0], yx[1], total, min)
-		if newTotal < min {
-			min = newTotal
+}
+
+func (c *Cave) sortNodes(n *Node) {
+	targetIndex, nodeIndex := -1, 0
+	for i, node := range c.distances {
+		if targetIndex == -1 {
+			if n.distance <= node.distance {
+				targetIndex = i
+			}
+		}
+		if n == node {
+			nodeIndex = i
+			break
 		}
 	}
-	return min
-}
-
-func (c *Cave) minimumFromPoint(y, x int) {
-	value := val(c.chiton[y][x])
-	if y == c.yMax && x == c.xMax {
-		c.minimums[y][x] = value
+	if targetIndex == nodeIndex {
 		return
 	}
-	minimum := 0
-	coords := c.getCoords(y, x)
-	for _, yx := range coords {
-		adjacentMinimum := c.minimums[yx[0]][yx[1]]
-		if adjacentMinimum == 0 {
-			continue
-		}
-		if adjacentMinimum+value < minimum || minimum == 0 {
-			minimum = adjacentMinimum + value
-		}
-	}
-	c.minimums[y][x] = minimum
+	copy(c.distances[targetIndex+1:nodeIndex+1], c.distances[targetIndex:nodeIndex])
+	c.distances[targetIndex] = n
 }
 
-func (c *Cave) getCoords(y, x int) [][]int {
+func (c *Cave) getCoords(y, x int) []*Node {
 	coords := [][]int{
 		[]int{y - 1, x},
 		[]int{y, x - 1},
 		[]int{y + 1, x},
 		[]int{y, x + 1},
 	}
-	correct := [][]int{}
+	correct := []*Node{}
 	for _, yx := range coords {
-		if yx[0] >= 0 && yx[1] >= 0 && yx[0] <= c.yMax && yx[1] <= c.xMax {
-			correct = append(correct, yx)
+		if yx[0] >= 0 && yx[1] >= 0 && yx[0] <= c.yMax && yx[1] <= c.xMax && !c.nodes[yx[0]][yx[1]].visited {
+			correct = append(correct, c.nodes[yx[0]][yx[1]])
 		}
 	}
 	return correct
-}
-
-func (c *Cave) correctPoint(y, x int) {
-	coords := c.getCoords(y, x)
-	for _, yx := range coords {
-		adjacentMinimum := c.minimums[yx[0]][yx[1]]
-		if adjacentMinimum > c.minimums[y][x]+val(c.chiton[yx[0]][yx[1]]) {
-			c.minimums[yx[0]][yx[1]] = c.minimums[y][x] + val(c.chiton[yx[0]][yx[1]])
-			c.correctPoint(yx[0], yx[1])
-		}
-	}
 }
 
 func val(r byte) int {
@@ -90,23 +96,20 @@ func AvoidChiton(chiton []string) int {
 		yMax:   len(chiton) - 1,
 		xMax:   len(chiton[0]) - 1,
 	}
-	mins := make([][]int, cave.yMax+1)
-	for i := 0; i <= cave.xMax; i++ {
-		mins[i] = make([]int, cave.xMax+1)
-	}
-	cave.minimums = mins
+	nodes := make([][]*Node, cave.yMax+1)
+	distances := make([]*Node, len(chiton)*len(chiton[0]))
 	for i := cave.yMax; i >= 0; i-- {
+		nodes[i] = make([]*Node, (cave.xMax + 1))
 		for j := cave.xMax; j >= 0; j-- {
-			cave.minimumFromPoint(i, j)
+			n := newNode(i, j, val(chiton[j][i]))
+			nodes[i][j] = n
+			distances[(i*(cave.xMax+1))+j] = n
 		}
 	}
-
-	for i := cave.xMax; i >= 0; i-- {
-		for j := cave.yMax; j >= 0; j-- {
-			cave.correctPoint(j, i)
-		}
-	}
-	return cave.minimums[0][0] - val(chiton[0][0])
+	cave.nodes = nodes
+	cave.distances = distances
+	cave.dijkstra()
+	return cave.nodes[cave.yMax][cave.xMax].distance
 }
 
 func buildBiggerChiton(chiton []string, factor int) []string {

@@ -42,13 +42,15 @@ func main() {
 		"passagepathing",
 		"transparentorigami",
 		"extendedpolymerization",
+		"chiton",
 	}
 	if *all {
 		previous := time.Now()
 		fmt.Println("Start Time: ", time.Now())
 		for _, c := range completed {
+			s := RunChallenge(c)
 			current := time.Now()
-			fmt.Println(RunChallenge(c), " Duration/ms: ", float64(current.Sub(previous).Microseconds())/1000)
+			fmt.Println(s, " Duration/ms: ", float64(current.Sub(previous).Microseconds())/1000)
 			previous = current
 		}
 	} else {

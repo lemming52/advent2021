@@ -1,7 +1,6 @@
 package chiton
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
