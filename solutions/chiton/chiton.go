@@ -2,6 +2,7 @@ package chiton
 
 import (
 	"bufio"
+	"container/heap"
 	"log"
 	"math"
 	"os"
@@ -10,8 +11,8 @@ import (
 const runeOffset = 48
 
 type Node struct {
-	y, x, distance, value int
-	visited               bool
+	y, x, distance, value, index int
+	visited                      bool
 }
 
 func newNode(y, x, value int) *Node {
@@ -25,50 +26,35 @@ func newNode(y, x, value int) *Node {
 }
 
 type Cave struct {
-	chiton    []string
-	nodes     [][]*Node
-	distances []*Node
-	yMax      int
-	xMax      int
-	minimums  [][]int // for the hack
+	chiton   []string
+	nodes    [][]*Node
+	yMax     int
+	xMax     int
+	minimums [][]int // for the hack
 }
 
 func (c *Cave) dijkstra() {
 	current := c.nodes[0][0]
 	current.distance = 0
-	for current.y != c.yMax || current.x != c.xMax {
-		c.distances = c.distances[1:]
+
+	pq := prioQueue{current}
+	heap.Init(&pq)
+
+	for pq.Len() != 0 {
+		current := heap.Pop(&pq).(*Node)
+		if current.x == c.xMax && current.y == c.yMax {
+			break
+		}
 		current.visited = true
 		neighbours := c.getCoords(current.y, current.x)
 		for _, n := range neighbours {
 			tentative := current.distance + n.value
 			if tentative < n.distance {
 				n.distance = tentative
-				c.sortNodes(n)
+				heap.Push(&pq, n)
 			}
 		}
-		current = c.distances[0]
 	}
-}
-
-func (c *Cave) sortNodes(n *Node) {
-	targetIndex, nodeIndex := -1, 0
-	for i, node := range c.distances {
-		if targetIndex == -1 {
-			if n.distance <= node.distance {
-				targetIndex = i
-			}
-		}
-		if n == node {
-			nodeIndex = i
-			break
-		}
-	}
-	if targetIndex == nodeIndex {
-		return
-	}
-	copy(c.distances[targetIndex+1:nodeIndex+1], c.distances[targetIndex:nodeIndex])
-	c.distances[targetIndex] = n
 }
 
 func (c *Cave) getCoords(y, x int) []*Node {
@@ -98,17 +84,14 @@ func AvoidChiton(chiton []string) int {
 		xMax:   len(chiton[0]) - 1,
 	}
 	nodes := make([][]*Node, cave.yMax+1)
-	distances := make([]*Node, len(chiton)*len(chiton[0]))
 	for i := cave.yMax; i >= 0; i-- {
 		nodes[i] = make([]*Node, (cave.xMax + 1))
 		for j := cave.xMax; j >= 0; j-- {
 			n := newNode(i, j, val(chiton[j][i]))
 			nodes[i][j] = n
-			distances[(i*(cave.xMax+1))+j] = n
 		}
 	}
 	cave.nodes = nodes
-	cave.distances = distances
 	cave.dijkstra()
 	return cave.nodes[cave.yMax][cave.xMax].distance
 }
