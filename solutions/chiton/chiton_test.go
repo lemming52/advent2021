@@ -1,6 +1,7 @@
 package chiton
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,6 +28,16 @@ func TestAvoidChiton(t *testing.T) {
 				"2311944581",
 			},
 			expected: 40,
+		}, {
+			name: "backtrack",
+			chiton: []string{
+				"19999",
+				"19999",
+				"19111",
+				"19191",
+				"11191",
+			},
+			expected: 12,
 		},
 	}
 	for _, test := range tests {

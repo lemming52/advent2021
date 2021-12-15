@@ -2,7 +2,6 @@ package chiton
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 )
@@ -23,9 +22,6 @@ func (c *Cave) explore(y, x, total, min int) int {
 	}
 	if total > min {
 		return total
-	}
-	if y%5 == 0 {
-		fmt.Println(y, x, total, min)
 	}
 	coords := c.getCoords(y, x)
 	for _, yx := range coords {
@@ -59,6 +55,8 @@ func (c *Cave) minimumFromPoint(y, x int) {
 
 func (c *Cave) getCoords(y, x int) [][]int {
 	coords := [][]int{
+		[]int{y - 1, x},
+		[]int{y, x - 1},
 		[]int{y + 1, x},
 		[]int{y, x + 1},
 	}
@@ -71,15 +69,15 @@ func (c *Cave) getCoords(y, x int) [][]int {
 	return correct
 }
 
-func (c *Cave) naiveMinimum() int {
-	total := 0
-	for i := 1; i <= c.xMax; i++ {
-		total += val(c.chiton[0][i])
+func (c *Cave) correctPoint(y, x int) {
+	coords := c.getCoords(y, x)
+	for _, yx := range coords {
+		adjacentMinimum := c.minimums[yx[0]][yx[1]]
+		if adjacentMinimum > c.minimums[y][x]+val(c.chiton[yx[0]][yx[1]]) {
+			c.minimums[yx[0]][yx[1]] = c.minimums[y][x] + val(c.chiton[yx[0]][yx[1]])
+			c.correctPoint(yx[0], yx[1])
+		}
 	}
-	for i := 1; i <= c.yMax; i++ {
-		total += val(c.chiton[i][c.xMax])
-	}
-	return total
 }
 
 func val(r byte) int {
@@ -97,13 +95,34 @@ func AvoidChiton(chiton []string) int {
 		mins[i] = make([]int, cave.xMax+1)
 	}
 	cave.minimums = mins
-	for i := cave.xMax; i >= 0; i-- {
-		for j := cave.yMax; j >= 0; j-- {
-			cave.minimumFromPoint(j, i)
+	for i := cave.yMax; i >= 0; i-- {
+		for j := cave.xMax; j >= 0; j-- {
+			cave.minimumFromPoint(i, j)
 		}
 	}
-	fmt.Println(cave.minimums)
+
+	for i := cave.xMax; i >= 0; i-- {
+		for j := cave.yMax; j >= 0; j-- {
+			cave.correctPoint(j, i)
+		}
+	}
 	return cave.minimums[0][0] - val(chiton[0][0])
+}
+
+func buildBiggerChiton(chiton []string, factor int) []string {
+	newChiton := make([]string, len(chiton)*factor)
+	for i := 0; i < len(chiton)*factor; i++ {
+		layer := make([]rune, len(chiton[0])*factor)
+		for j := 0; j < len(chiton[0])*factor; j++ {
+			value := (val(chiton[i%len(chiton)][j%len(chiton[0])]) + i/len(chiton) + j/len(chiton)) % 9
+			if value == 0 {
+				value = 9
+			}
+			layer[j] = rune(value + runeOffset)
+		}
+		newChiton[i] = string(layer)
+	}
+	return newChiton
 }
 
 func Challenge(path string) (int, int) {
@@ -121,6 +140,7 @@ func Challenge(path string) (int, int) {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	a := AvoidChiton(chiton)
-	return a, 0
+
+	bigger := buildBiggerChiton(chiton, 5)
+	return AvoidChiton(chiton), AvoidChiton(bigger)
 }
