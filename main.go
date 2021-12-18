@@ -13,6 +13,7 @@ import (
 	"advent/solutions/passagepathing"
 	"advent/solutions/sevensegmentsearch"
 	"advent/solutions/smokebasin"
+	"advent/solutions/snailmaths"
 	"advent/solutions/sonarsweep"
 	"advent/solutions/syntaxscoring"
 	"advent/solutions/transparentorigami"
@@ -117,6 +118,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "trickshot":
 		A, B := trickshot.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "snailmaths":
+		A, B := snailmaths.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
