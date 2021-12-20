@@ -59,10 +59,10 @@ func (c *Cave) dijkstra() {
 
 func (c *Cave) getCoords(y, x int) []*Node {
 	coords := [][]int{
-		[]int{y - 1, x},
-		[]int{y, x - 1},
-		[]int{y + 1, x},
-		[]int{y, x + 1},
+		{y - 1, x},
+		{y, x - 1},
+		{y + 1, x},
+		{y, x + 1},
 	}
 	correct := []*Node{}
 	for _, yx := range coords {

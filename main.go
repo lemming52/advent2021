@@ -19,6 +19,7 @@ import (
 	"advent/solutions/syntaxscoring"
 	"advent/solutions/transparentorigami"
 	"advent/solutions/treacheryofwhales"
+	"advent/solutions/trenchmap"
 	"advent/solutions/trickshot"
 	"flag"
 	"fmt"
@@ -49,6 +50,8 @@ func main() {
 		"chiton",
 		"packetdecoder",
 		"trickshot",
+		"beaconscanner",
+		"trenchmap",
 	}
 	if *all {
 		previous := time.Now()
@@ -125,6 +128,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "beaconscanner":
 		A, B := beaconscanner.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "trenchmap":
+		A, B := trenchmap.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
