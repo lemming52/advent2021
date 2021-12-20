@@ -1,6 +1,7 @@
 package main
 
 import (
+	"advent/solutions/beaconscanner"
 	"advent/solutions/binarydiagnostic"
 	"advent/solutions/chiton"
 	"advent/solutions/dive"
@@ -121,6 +122,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "snailmaths":
 		A, B := snailmaths.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "beaconscanner":
+		A, B := beaconscanner.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
