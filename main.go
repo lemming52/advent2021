@@ -4,6 +4,7 @@ import (
 	"advent/solutions/beaconscanner"
 	"advent/solutions/binarydiagnostic"
 	"advent/solutions/chiton"
+	"advent/solutions/diracdie"
 	"advent/solutions/dive"
 	"advent/solutions/dumbooctopus"
 	"advent/solutions/extendedpolymerization"
@@ -131,6 +132,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "trenchmap":
 		A, B := trenchmap.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "diracdie":
+		A, B := diracdie.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res

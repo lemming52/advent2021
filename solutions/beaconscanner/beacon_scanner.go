@@ -132,7 +132,7 @@ func locateScanner(origin, target *Scanner) bool {
 	shared := map[string][]*Beacon{}
 	candidates := map[string][]*Displacement{}
 	for originIndex < maxO && targetIndex < maxT {
-		if len(shared) >= 12 {
+		if len(shared) >= 12 { // below this the results get weird
 			findTargetOrigin(origin, target, shared)
 			return true
 		}
