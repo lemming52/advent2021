@@ -11,13 +11,19 @@ const instructionPattern = `(\w{2,3}) x=(\-?\d{1,5})\.\.(\-?\d{1,5})\,y=(\-?\d{1
 type Cuboid struct {
 	x0, x1, y0, y1, z0, z1 int
 	on                     bool
+	name int
+}
+
+type ContestedRegion struct {
+	parent *Cuboid
+	region [][][]bool
 }
 
 func (c *Cuboid) volume() int {
 	return (c.x1 + 1 - c.x0) * (c.y1 + 1 - c.y0) * (c.z1 + 1 - c.z0)
 }
 
-func newCuboid(s string, pattern *regexp.Regexp) (*Cuboid, error) {
+func newCuboid(s string, pattern *regexp.Regexp, name int) (*Cuboid, error) {
 	components := pattern.FindStringSubmatch(s)
 	values := make([]int, 6)
 	for i, c := range components[2:] {
@@ -28,6 +34,7 @@ func newCuboid(s string, pattern *regexp.Regexp) (*Cuboid, error) {
 		values[i] = val
 	}
 	c := &Cuboid{
+		name: name,
 		on: components[1] == "on",
 	}
 	if values[0] < values[1] {
@@ -185,20 +192,36 @@ func Reboot(instructions []string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	var onInstructions []*Cuboid
-	for _, i := range instructions {
-		cuboid, err := newCuboid(i, pattern)
+	cuboids := []*Cuboid{}
+	contestedRegions := map[int][]*ContestedRegion{}
+	lightsOn := 0
+
+	for i, ins := range instructions {
+		cuboid, err := newCuboid(ins, pattern, i)
 		if err != nil {
 			return 0, err
 		}
-		fmt.Println(cuboid, onInstructions)
-		if onInstructions == nil {
-			if cuboid.on {
-				onInstructions = []*Cuboid{cuboid}
+		for _, c := range cuboids {
+			if cuboidsOverlap(cuboid, c) {
+				overlap := findOverlapDimensions(cuboid, c)
+				contested, ok := contestedRegions[c.name]
+				if !ok {
+					continue
+				}
+				for _, cn := range contested {
+					if !cuboidsOverlap(cuboid, cn) {
+						continue
+					}
+					if cn.on
+				}
 			}
-			continue
 		}
-		onInstructions = findOverlaps(cuboid, onInstructions)
+			lightsOn += cuboid.volume() - overlapCount
+		} else {
+
+		}
+
+		cuboids = append(cuboids, cuboid)
 	}
 	total := 0
 	for _, i := range onInstructions {
