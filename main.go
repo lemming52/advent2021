@@ -53,6 +53,7 @@ func main() {
 		"trickshot",
 		"beaconscanner",
 		"trenchmap",
+		"diracdie",
 	}
 	if *all {
 		previous := time.Now()
