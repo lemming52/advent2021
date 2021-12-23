@@ -1,6 +1,7 @@
 package main
 
 import (
+	"advent/solutions/amphipod"
 	"advent/solutions/beaconscanner"
 	"advent/solutions/binarydiagnostic"
 	"advent/solutions/chiton"
@@ -13,6 +14,7 @@ import (
 	"advent/solutions/lanternfish"
 	"advent/solutions/packetdecoder"
 	"advent/solutions/passagepathing"
+	"advent/solutions/reactorreboot"
 	"advent/solutions/sevensegmentsearch"
 	"advent/solutions/smokebasin"
 	"advent/solutions/snailmaths"
@@ -54,6 +56,7 @@ func main() {
 		"beaconscanner",
 		"trenchmap",
 		"diracdie",
+		"reactorreboot",
 	}
 	if *all {
 		previous := time.Now()
@@ -136,6 +139,12 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "diracdie":
 		A, B := diracdie.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "reactorreboot":
+		A, B := reactorreboot.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "amphipod":
+		A, B := amphipod.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
