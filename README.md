@@ -18,8 +18,8 @@ go run main.go -all
 
 ### Challenge Days
 
-Day | Challenge
-----|----------
+Day | Challenge |Day | Challenge
+----|-----------|----|----------
 1 | `sonarsweep` | 14 | `extendedpolymerization`
 2 | `dive` | 15 | `chiton`
 3 | `binarydiagnostic` | 16 | `packetdecoder`
