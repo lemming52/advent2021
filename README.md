@@ -20,26 +20,16 @@ go run main.go -all
 
 Day | Challenge
 ----|----------
-1 | `sonarsweep`
-2 | `dive`
-3 | `binarydiagnostic`
-4 | `giantsquid`
-5 | `hydrothermalventure`
-6 | `lanternfish`
-7 | `treacheryofwhales`
-8 | `sevensegmentsearch`
-9 | `smokebasin`
-10 | `syntaxscoring`
+1 | `sonarsweep` | 14 | `extendedpolymerization`
+2 | `dive` | 15 | `chiton`
+3 | `binarydiagnostic` | 16 | `packetdecoder`
+4 | `giantsquid` | 17 | `trickshot`
+5 | `hydrothermalventure` | 18 | `snailfish`
+6 | `lanternfish` | 19 | `beaconscanner`
+7 | `treacheryofwhales` | 20 | `trenchmap`
+8 | `sevensegmentsearch` | 21 | `diracdie`
+9 | `smokebasin` | 22 | `reactorreboot`
+10 | `syntaxscoring` | 23 | `amphipod`
 11 | `dumbooctopus`
 12 | `passagepathing`
 13 | `transparentorigami`
-14 | `extendedpolymerization`
-15 | `chiton`
-16 | `packetdecoder`
-17 | `trickshot`
-18 | `snailfish`
-19 | `beaconscanner`
-20 | `trenchmap`
-21 | `diracdie`
-22 | `reactorreboot`
-23 | `amphipod`
