@@ -10,13 +10,12 @@ import (
 const runeOffset = 65
 
 type Board struct {
-	rooms    [][]rune
-	hallway  []rune
-	name     string
-	cost     int
-	index    int
-	visited  bool
-	previous []*Board
+	rooms   [][]rune
+	hallway []rune
+	name    string
+	cost    int
+	index   int
+	visited bool
 }
 
 func newEmptyBoard(size int) *Board {
@@ -32,9 +31,8 @@ func newEmptyBoard(size int) *Board {
 
 func newBoard(rooms []string) *Board {
 	b := &Board{
-		hallway:  make([]rune, 11),
-		rooms:    make([][]rune, 4),
-		previous: []*Board{},
+		hallway: make([]rune, 11),
+		rooms:   make([][]rune, 4),
 	}
 	for i := range b.hallway {
 		b.hallway[i] = 0
@@ -92,7 +90,6 @@ func (b *Board) getCopy() *Board {
 		copy(nb.rooms[i], r)
 	}
 	nb.cost = b.cost
-	nb.previous = append(b.previous, b)
 	return nb
 }
 
@@ -254,7 +251,6 @@ func (b *Board) newRoomMove(i, position, j, roomIndex int, r rune) *Board {
 
 func FindMinimum(rooms []string) int {
 	b := newBoard(rooms)
-	b.print()
 	pq := PriorityQueue{b}
 	boards := map[string]*Board{b.name: b}
 	heap.Init(&pq)
@@ -264,18 +260,11 @@ func FindMinimum(rooms []string) int {
 		current := heap.Pop(&pq).(*Board)
 		if current.IsOrganised() {
 			cost = current.cost
-			for _, v := range current.previous {
-				v.print()
-			}
 			break
 		}
 		current.visited = true
 		moves := current.allowedMoves()
 		for _, m := range moves {
-			if current.cost == 2691 {
-				current.print()
-				m.print()
-			}
 			if m.visited {
 				continue
 			}

@@ -1,5 +1,7 @@
 package amphipod
 
+// derived from the previous copied code and the heap documentation
+
 type PriorityQueue []*Board
 
 func (pq PriorityQueue) Len() int { return len(pq) }

@@ -53,10 +53,12 @@ func main() {
 		"chiton",
 		"packetdecoder",
 		"trickshot",
+		"snailfish",
 		"beaconscanner",
 		"trenchmap",
 		"diracdie",
 		"reactorreboot",
+		"amphipod",
 	}
 	if *all {
 		previous := time.Now()
