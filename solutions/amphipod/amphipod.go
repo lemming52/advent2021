@@ -19,18 +19,18 @@ type Board struct {
 	previous []*Board
 }
 
-func newEmptyBoard() *Board {
+func newEmptyBoard(size int) *Board {
 	b := &Board{
 		rooms:   make([][]rune, 4),
 		hallway: make([]rune, 11),
 	}
 	for i := 0; i < 4; i++ {
-		b.rooms[i] = make([]rune, 2)
+		b.rooms[i] = make([]rune, size)
 	}
 	return b
 }
 
-func newBoard(upper, lower string) *Board {
+func newBoard(rooms []string) *Board {
 	b := &Board{
 		hallway:  make([]rune, 11),
 		rooms:    make([][]rune, 4),
@@ -39,14 +39,14 @@ func newBoard(upper, lower string) *Board {
 	for i := range b.hallway {
 		b.hallway[i] = 0
 	}
-	for i, r := range upper[3:] {
-		if r != '#' {
-			b.rooms[i/2] = []rune{r, 0}
-		}
+	for i := range b.rooms {
+		b.rooms[i] = make([]rune, len(rooms))
 	}
-	for i, r := range lower[3:10] {
-		if r != '#' {
-			b.rooms[i/2][1] = r
+	for i, s := range rooms {
+		for j, r := range s[3:11] {
+			if r != '#' {
+				b.rooms[j/2][i] = r
+			}
 		}
 	}
 	b.generateName()
@@ -54,26 +54,39 @@ func newBoard(upper, lower string) *Board {
 }
 
 func (b *Board) IsOrganised() bool {
-	for i, r := range b.rooms {
-		if r[0] != rune(i)+runeOffset {
-			return false
-		}
-		if r[1] != rune(i)+runeOffset {
-			return false
+	for i, rm := range b.rooms {
+		desired := rune(i) + runeOffset
+		for _, r := range rm {
+			if r != desired {
+				return false
+			}
 		}
 	}
 	return true
 }
 
 func (b *Board) generateName() {
-	b.name = string(b.hallway)
-	for _, r := range b.rooms {
-		b.name += string(r)
+	b.name = ""
+	for _, r := range b.hallway {
+		if r >= runeOffset && r <= runeOffset+4 {
+			b.name += string(r)
+		} else {
+			b.name += " "
+		}
+	}
+	for _, rm := range b.rooms {
+		for _, r := range rm {
+			if r >= runeOffset && r <= runeOffset+4 {
+				b.name += string(r)
+			} else {
+				b.name += " "
+			}
+		}
 	}
 }
 
 func (b *Board) getCopy() *Board {
-	nb := newEmptyBoard()
+	nb := newEmptyBoard(len(b.rooms[0]))
 	copy(nb.hallway, b.hallway)
 	for i, r := range b.rooms {
 		copy(nb.rooms[i], r)
@@ -84,7 +97,7 @@ func (b *Board) getCopy() *Board {
 }
 
 func (b *Board) print() {
-	fmt.Println("Cost: ", b.cost, len(b.rooms), len(b.hallway))
+	fmt.Println("Cost: ", b.cost, b.name)
 	fmt.Println("#############")
 	s := "#"
 	for _, r := range b.hallway {
@@ -95,24 +108,27 @@ func (b *Board) print() {
 		}
 	}
 	s += "#"
-	s1, s2 := "###", "  #"
-	for _, r := range b.rooms {
-		if r[0] >= runeOffset && r[0] < runeOffset+4 {
-			s1 += fmt.Sprintf("%s#", string(r[0]))
-		} else {
-			s1 += " #"
-		}
-		if r[1] >= runeOffset && r[1] < runeOffset+4 {
-			s2 += fmt.Sprintf("%s#", string(r[1]))
-		} else {
-			s2 += " #"
+	fmt.Println(s)
+	roomStrings := []string{"###"}
+	for _ = range b.rooms[0][1:] {
+		roomStrings = append(roomStrings, "  #")
+	}
+	for _, rm := range b.rooms {
+		for j, r := range rm {
+			if r >= runeOffset && r < runeOffset+4 {
+				roomStrings[j] += fmt.Sprintf("%s#", string(r))
+			} else {
+				roomStrings[j] += " #"
+			}
 		}
 	}
-	s1 += "##"
-	s2 += "  "
-	fmt.Println(s)
-	fmt.Println(s1)
-	fmt.Println(s2)
+	for i, s := range roomStrings {
+		if i == 0 {
+			fmt.Println(s + "##")
+		} else {
+			fmt.Println(s + "  ")
+		}
+	}
 	fmt.Println("  #########  ")
 }
 
@@ -127,17 +143,15 @@ func (b *Board) allowedMoves() []*Board {
 			}
 		}
 	}
-	for i, r := range b.rooms {
-		if r[0] != 0 {
-			newMoves := b.findRoomMoves(i, 0, r[0])
-			if newMoves != nil {
-				moves = append(moves, newMoves...)
-			}
-			moves = append(moves)
-		} else if r[1] != 0 {
-			newMoves := b.findRoomMoves(i, 1, r[1])
-			if newMoves != nil {
-				moves = append(moves, newMoves...)
+	for i, rm := range b.rooms {
+		for j, r := range rm {
+			if r != 0 {
+				newMoves := b.findRoomMoves(i, j, r)
+				if newMoves != nil {
+					moves = append(moves, newMoves...)
+				}
+				moves = append(moves)
+				break
 			}
 		}
 	}
@@ -150,15 +164,20 @@ func (b *Board) findHallwayMove(i int, r rune) *Board {
 	if distance < 0 {
 		distance *= -1
 	}
-	roomIndex := 0
-	if b.rooms[destination][1] == 0 {
-		roomIndex = 1
-		distance += 2
-	} else if b.rooms[destination][0] == 0 {
-		distance += 1
-	} else {
+	roomIndex := -1
+	for j := len(b.rooms[destination]) - 1; j >= 0; j-- {
+		if b.rooms[destination][j] == 0 {
+			roomIndex = j
+			distance += j + 1
+			break
+		} else if b.rooms[destination][j] != r {
+			return nil
+		}
+	}
+	if roomIndex == -1 {
 		return nil
 	}
+
 	increment := 1
 	if i > (destination+1)*2 {
 		increment = -1
@@ -233,8 +252,9 @@ func (b *Board) newRoomMove(i, position, j, roomIndex int, r rune) *Board {
 	return nb
 }
 
-func FindMinimum(upper, lower string) int {
-	b := newBoard(upper, lower)
+func FindMinimum(rooms []string) int {
+	b := newBoard(rooms)
+	b.print()
 	pq := PriorityQueue{b}
 	boards := map[string]*Board{b.name: b}
 	heap.Init(&pq)
@@ -242,14 +262,20 @@ func FindMinimum(upper, lower string) int {
 	cost := 0
 	for pq.Len() != 0 {
 		current := heap.Pop(&pq).(*Board)
-		//current.print()
 		if current.IsOrganised() {
 			cost = current.cost
+			for _, v := range current.previous {
+				v.print()
+			}
 			break
 		}
 		current.visited = true
 		moves := current.allowedMoves()
 		for _, m := range moves {
+			if current.cost == 2691 {
+				current.print()
+				m.print()
+			}
 			if m.visited {
 				continue
 			}
@@ -273,6 +299,5 @@ func Challenge(path string) (int, int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	a := FindMinimum(lines[2], lines[3])
-	return a, 0
+	return FindMinimum([]string{lines[2], lines[3]}), FindMinimum([]string{lines[2], "  #D#C#B#A#  ", "  #D#B#A#C#  ", lines[3]})
 }

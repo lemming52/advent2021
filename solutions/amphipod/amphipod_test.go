@@ -8,23 +8,26 @@ import (
 
 func TestFindMinimum(t *testing.T) {
 	tests := []struct {
-		name     string
-		upper    string
-		lower    string
-		expected int
+		name          string
+		rooms         []string
+		lower         string
+		expected      int
+		expectedExtra int
 	}{
 		{
-			name:  "base",
-			upper: "###B#C#B#D###",
-			lower: "  #A#D#C#A#  ",
-
+			name:     "base",
+			rooms:    []string{"###B#C#B#D###", "  #A#D#C#A#  "},
 			expected: 12521,
+		}, {
+			name:     "complex",
+			rooms:    []string{"###B#C#B#D###", "  #D#C#B#A#  ", "  #D#B#A#C#  ", "  #A#D#C#A#  "},
+			expected: 44169,
 		},
 	}
 	for _, test := range tests {
 		tt := test
 		t.Run(tt.name, func(t *testing.T) {
-			expected := FindMinimum(tt.upper, tt.lower)
+			expected := FindMinimum(tt.rooms)
 			assert.Equal(t, tt.expected, expected, "returned value should match expected")
 		})
 	}
