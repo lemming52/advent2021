@@ -15,6 +15,15 @@ func TestReboot(t *testing.T) {
 		{
 			name: "base",
 			instructions: []string{
+				"on x=10..12,y=10..12,z=10..12",
+				"on x=11..13,y=11..13,z=11..13",
+				"off x=9..11,y=9..11,z=9..11",
+				"on x=10..10,y=10..10,z=10..10",
+			},
+			expected: 38,
+		}, {
+			name: "full",
+			instructions: []string{
 				"on x=-20..26,y=-36..17,z=-47..7",
 				"on x=-20..33,y=-21..23,z=-26..28",
 				"on x=-22..28,y=-29..23,z=-38..16",
@@ -36,7 +45,7 @@ func TestReboot(t *testing.T) {
 				"off x=18..30,y=-20..-8,z=-3..13",
 				"on x=-41..9,y=-7..43,z=-33..15",
 			},
-			expected: 39,
+			expected: 38,
 		},
 	}
 	for _, test := range tests {

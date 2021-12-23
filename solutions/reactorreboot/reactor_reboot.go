@@ -106,7 +106,7 @@ func findOverlaps(a *Cuboid, existing []*Cuboid) []*Cuboid {
 				for _, c := range overlaps {
 					overlapCuboids = append(overlapCuboids, findOverlaps(c, existing[i+1:])...)
 				}
-				return append(newCuboids, overlapCuboids...)
+				return combineCuboids(append(newCuboids, overlapCuboids...))
 			} else {
 				newCuboids = append(newCuboids, splitOldOnCuboid(a, on)...)
 			}
@@ -130,7 +130,7 @@ func buildNewOnCuboids(a, original *Cuboid) []*Cuboid {
 	overlap := findOverlapDimensions(a, original)
 	overlappingDimensions := overlappingFaces(a, overlap)
 	newCuboids := expandOverlapFaces(overlappingDimensions, a, overlap)
-	return append([]*Cuboid{original}, newCuboids...)
+	return combineCuboids(append([]*Cuboid{original}, newCuboids...))
 }
 
 func splitOldOnCuboid(a, original *Cuboid) []*Cuboid {
@@ -142,7 +142,97 @@ func splitOldOnCuboid(a, original *Cuboid) []*Cuboid {
 	overlap := findOverlapDimensions(a, original)
 	overlappingDimensions := overlappingFaces(original, overlap)
 	newCuboids := expandOverlapFaces(overlappingDimensions, original, overlap)
-	return newCuboids
+	return combineCuboids(newCuboids)
+}
+
+func combineCuboids(cuboids []*Cuboid) []*Cuboid {
+	for i, c := range cuboids[:len(cuboids)-1] {
+		for j, cx := range cuboids[i+1:] {
+			if shareFace(c, cx) {
+				cn := combine(c, cx)
+				newArray := append([]*Cuboid{}, cuboids[:i]...)
+				newArray = append(newArray, cn)
+				newArray = append(newArray, cuboids[i+1:i+j+1]...)
+				if j+i != len(cuboids)-1 {
+					newArray = append(newArray, cuboids[i+j+2:]...)
+				}
+				return combineCuboids(newArray)
+			}
+		}
+	}
+	return cuboids
+}
+
+func shareFace(a, b *Cuboid) bool {
+	sharedCount := 0
+	xAxis, yAxis, zAxis := false, false, false
+	if a.x0 == b.x0 {
+		xAxis = true
+		sharedCount++
+	}
+	if a.x1 == b.x1 {
+		xAxis = true
+		sharedCount++
+	}
+	if a.y0 == b.y0 {
+		yAxis = true
+		sharedCount++
+	}
+	if a.y1 == b.y1 {
+		yAxis = true
+		sharedCount++
+	}
+	if a.z0 == b.z0 {
+		zAxis = true
+		sharedCount++
+	}
+	if a.z1 == b.z1 {
+		zAxis = true
+		sharedCount++
+	}
+	if sharedCount >= 4 {
+		if !xAxis {
+			return a.x1 == b.x0-1 || b.x1 == a.x0-1
+		}
+		if !yAxis {
+			return a.y1 == b.y0-1 || b.y1 == a.y0-1
+		}
+		if !zAxis {
+			return a.z1 == b.z0-1 || b.z1 == a.z0-1
+		}
+	}
+	return false
+}
+
+func combine(a, b *Cuboid) *Cuboid {
+	c := &Cuboid{
+		x0: a.x0,
+		x1: a.x1,
+		y0: a.y0,
+		y1: a.y1,
+		z0: a.z0,
+		z1: a.z1,
+		on: a.on,
+	}
+	if a.x1 == b.x0-1 {
+		c.x1 = b.x1
+	}
+	if b.x1 == a.x0-1 {
+		c.x0 = b.x0
+	}
+	if a.y1 == b.y0-1 {
+		c.y1 = b.y1
+	}
+	if b.y1 == a.y0-1 {
+		c.y0 = b.y0
+	}
+	if a.z1 == b.z0-1 {
+		c.z1 = b.z1
+	}
+	if b.z1 == a.z0-1 {
+		c.z0 = b.z0
+	}
+	return c
 }
 
 func findOverlapDimensions(a, b *Cuboid) *Cuboid {
@@ -191,14 +281,17 @@ func Reboot(instructions []string) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		fmt.Println(cuboid, onInstructions)
 		if onInstructions == nil {
 			if cuboid.on {
 				onInstructions = []*Cuboid{cuboid}
 			}
 			continue
 		}
-		onInstructions = findOverlaps(cuboid, onInstructions)
+		onInstructions = combineCuboids(findOverlaps(cuboid, onInstructions))
+		fmt.Println("++++", len(onInstructions))
+		for j, i := range onInstructions {
+			fmt.Println(i, j)
+		}
 	}
 	total := 0
 	for _, i := range onInstructions {
