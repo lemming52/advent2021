@@ -1,4 +1,4 @@
-# Advent of Code 2020 Solutions
+# Advent of Code 2021 Solutions
 
 My set of solutions for [Advent of Code 2021](https://adventofcode.com/2021), written in Golang because I'm _lazy_.
 
@@ -24,7 +24,7 @@ Day | Challenge |Day | Challenge
 2 | `dive` | 15 | `chiton`
 3 | `binarydiagnostic` | 16 | `packetdecoder`
 4 | `giantsquid` | 17 | `trickshot`
-5 | `hydrothermalventure` | 18 | `snailfish`
+5 | `hydrothermalventure` | 18 | `snailmaths`
 6 | `lanternfish` | 19 | `beaconscanner`
 7 | `treacheryofwhales` | 20 | `trenchmap`
 8 | `sevensegmentsearch` | 21 | `diracdie`

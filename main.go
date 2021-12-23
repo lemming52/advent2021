@@ -53,7 +53,7 @@ func main() {
 		"chiton",
 		"packetdecoder",
 		"trickshot",
-		"snailfish",
+		"snailmaths",
 		"beaconscanner",
 		"trenchmap",
 		"diracdie",
