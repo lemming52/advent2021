@@ -30,6 +30,6 @@ Day | Challenge |Day | Challenge
 8 | `sevensegmentsearch` | 21 | `diracdie`
 9 | `smokebasin` | 22 | `reactorreboot`
 10 | `syntaxscoring` | 23 | `amphipod`
-11 | `dumbooctopus`
-12 | `passagepathing`
+11 | `dumbooctopus` | 24 | `alu`
+12 | `passagepathing` | 25 |
 13 | `transparentorigami`

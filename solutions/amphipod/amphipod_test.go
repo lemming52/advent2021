@@ -8,11 +8,9 @@ import (
 
 func TestFindMinimum(t *testing.T) {
 	tests := []struct {
-		name          string
-		rooms         []string
-		lower         string
-		expected      int
-		expectedExtra int
+		name     string
+		rooms    []string
+		expected int
 	}{
 		{
 			name:     "base",

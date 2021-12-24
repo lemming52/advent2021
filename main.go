@@ -1,6 +1,7 @@
 package main
 
 import (
+	"advent/solutions/alu"
 	"advent/solutions/amphipod"
 	"advent/solutions/beaconscanner"
 	"advent/solutions/binarydiagnostic"
@@ -59,6 +60,7 @@ func main() {
 		"diracdie",
 		"reactorreboot",
 		"amphipod",
+		"alu",
 	}
 	if *all {
 		previous := time.Now()
@@ -147,6 +149,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "amphipod":
 		A, B := amphipod.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "alu":
+		A, B := alu.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
