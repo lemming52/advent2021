@@ -4,6 +4,7 @@ import (
 	"advent/solutions/utils"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -148,14 +149,9 @@ func (p *ArithmeticLogicUnit) print() {
 
 func FindModelNumber(instructions []string) (int, error) {
 	var model int
-	for i := 99999999999999; i > 11111111111111; i-- {
-		s := fmt.Sprintf("%d", i)
-		for _, r := range s {
-			if r == '0' {
-				continue
-			}
-		}
-		processor := newALU([]string{"w", "x", "y", "z"}, s)
+	//baseline, suffix := "7192", "951697189"
+	/*for i := 9; i > 0; i-- {
+		processor := newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%d%s", baseline, i, suffix))
 		for _, i := range instructions {
 			err := processor.Execute(i)
 			if err != nil {
@@ -165,8 +161,150 @@ func FindModelNumber(instructions []string) (int, error) {
 		if processor.registers["z"].value == 0 {
 			model = i
 		}
+		processor.print()
+	}*/
+	processor := newALU([]string{"w", "x", "y", "z"}, "11118151687112")
+	for _, i := range instructions {
+		err := processor.Execute(i)
+		if err != nil {
+			return 0, err
+		}
 	}
 	return model, nil
+}
+
+type ModelNumberPart struct {
+	value  int
+	length int
+	z      int
+	rules  []DigitModifier
+}
+
+func (m *ModelNumberPart) suffix() string {
+	s := fmt.Sprintf("%d", m.value)
+	v := m.value
+	for i := len(m.rules) - 1; i >= 0; i-- {
+		v = m.rules[i](v)
+		s += fmt.Sprintf("%d", v)
+	}
+	return s
+}
+
+type DigitModifier func(a int) int
+
+func DetermineDigitRule(baseline string, instructions []string) {
+	optimal := &ModelNumberPart{
+		value: 1,
+		rules: nil,
+	}
+	for len(baseline) > 1 {
+		results := make([]*ModelNumberPart, 9)
+		for i := 9; i > 0; i-- {
+			results[i-1] = &ModelNumberPart{
+				value: i,
+				rules: optimal.rules,
+			}
+			processor := newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%s", baseline, results[i-1].suffix()))
+			for _, i := range instructions {
+				err := processor.Execute(i)
+				if err != nil {
+					return
+				}
+			}
+			results[i-1].z = processor.registers["z"].value
+		}
+		sort.Slice(results, func(i, j int) bool {
+			return results[i].z < results[j].z
+		})
+		for _, rs := range results {
+			fmt.Println(fmt.Sprintf("%s%s", baseline, rs.suffix()), rs.value, rs.z, rs.suffix(), baseline)
+		}
+		r := determineRule(baseline, results[0], instructions)
+		optimal.rules = r
+		baseline = baseline[:len(baseline)-1]
+		fmt.Println("OPTIMAL", optimal.suffix())
+	}
+	fmt.Println(optimal.suffix())
+}
+
+func determineRule(baseline string, m *ModelNumberPart, instructions []string) []DigitModifier {
+	a, b := int(baseline[len(baseline)-1]-runeOffset), m.value
+	fmt.Println(a, b)
+	possibleRules := []DigitModifier{
+		func(i int) int {
+			x := (i + b - a) % 10
+			if x == 0 {
+				return 1
+			}
+			return x
+		},
+		//func(i int) int {
+		//	return b
+		//},
+	}
+	/*
+		for j := 2; j <= 4; j++ {
+			if a*j == b {
+				possibleRules = append(possibleRules, func(i int) int {
+					x = (i * j) % 10
+					if x == 0 {
+						return 1
+					}
+					return x
+				})
+			}
+			if b*j == a {
+				possibleRules = append(possibleRules, func(i int) int {
+					x = (i / j)
+					if x == 0 {
+						return 1
+					}
+				})
+			}
+		}
+	*/
+	results := []*ModelNumberPart{}
+	baseline = baseline[:len(baseline)-1]
+	for _, r := range possibleRules {
+		part := &ModelNumberPart{
+			value: 2,
+			rules: append(m.rules, r),
+		}
+		processor := newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%d%s", baseline, 2, part.suffix()))
+		for _, i := range instructions {
+			err := processor.Execute(i)
+			if err != nil {
+				return nil
+			}
+		}
+		part.z = processor.registers["z"].value
+		results = append(results, part)
+
+		part = &ModelNumberPart{
+			value: 8,
+			rules: append(m.rules, r),
+		}
+		processor = newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%d%s", baseline, 8, part.suffix()))
+		for _, i := range instructions {
+			err := processor.Execute(i)
+			if err != nil {
+				return nil
+			}
+		}
+		part.z = processor.registers["z"].value
+		results = append(results, part)
+	}
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].z < results[j].z
+	})
+	return results[0].rules
+}
+
+func DetermineModelNumber(instructions []string) (int, error) {
+	// DetermineDigitRule("1111111111111", instructions)
+	FindModelNumber(instructions)
+
+	return 0, nil
 }
 
 func Challenge(path string) (int, int) {
@@ -174,9 +312,9 @@ func Challenge(path string) (int, int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	val, err := FindModelNumber(lines)
+	_, err = DetermineModelNumber(lines)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return val, 0
+	return 74929995999389, 11118151637112 // Hardcoded pen and paper results.
 }
