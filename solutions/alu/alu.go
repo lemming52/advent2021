@@ -2,6 +2,7 @@ package alu
 
 import (
 	"advent/solutions/utils"
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -147,164 +148,150 @@ func (p *ArithmeticLogicUnit) print() {
 	}
 }
 
-func FindModelNumber(instructions []string) (int, error) {
-	var model int
-	//baseline, suffix := "7192", "951697189"
-	/*for i := 9; i > 0; i-- {
-		processor := newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%d%s", baseline, i, suffix))
-		for _, i := range instructions {
-			err := processor.Execute(i)
-			if err != nil {
-				return 0, err
+type digitMap map[int]bool
+
+// courtesy of a mate and u/livluc https://www.reddit.com/r/adventofcode/comments/rnejv5/2021_day_24_solutions/hpu84cj/?context=3
+func monad(a, b, c int) func(w, z int) int {
+	return func(w, z int) int {
+		var gam int
+		if ((z % 26) + b) != w {
+			gam = 1
+		}
+		return gam*((z/a)*25+w+c) + (z / a)
+	}
+}
+
+func reverseMonad(a, b, c int) func(z int, results map[int][][]int) map[int][][]int {
+	return func(z int, results map[int][][]int) map[int][][]int {
+		for i := 0; i < a; i++ {
+			for j := 1; j <= 9; j++ {
+				zi := a*z + i
+				if (zi%26 + b) == j {
+					_, ok := results[zi]
+					if !ok {
+						results[zi] = [][]int{{z, j}}
+					} else {
+						results[zi] = append(results[zi], []int{z, j})
+					}
+				}
+				zi = (z-j-c)/(26*a) + i
+				if (zi%26 + b) != j {
+					if zi/a*26+j+c == z {
+						_, ok := results[zi]
+						if !ok {
+							results[zi] = [][]int{{z, j}}
+						} else {
+							results[zi] = append(results[zi], []int{z, j})
+						}
+					}
+				}
 			}
 		}
-		if processor.registers["z"].value == 0 {
-			model = i
+		return results
+	}
+}
+
+func determineConstants(instructions []string) ([][]int, error) {
+	relativeIndex := 0
+	constants := make([][]int, 14)
+	var a, b, c, counter int
+	var err error
+	for _, l := range instructions {
+		components := strings.Split(l, " ")
+		if components[0] == "inp" {
+			relativeIndex = 0
+			continue
 		}
-		processor.print()
-	}*/
-	processor := newALU([]string{"w", "x", "y", "z"}, "11118151687112")
+		if relativeIndex == 4 {
+			b, err = strconv.Atoi(components[2])
+			if err != nil {
+				return nil, err
+			}
+		}
+		if relativeIndex == 14 {
+			c, err = strconv.Atoi(components[2])
+			if err != nil {
+				return nil, err
+			}
+			if b < 0 {
+				a = 26
+			} else {
+				a = 1
+			}
+			constants[counter] = []int{a, b, c}
+			counter++
+		}
+		relativeIndex++
+	}
+	return constants, nil
+}
+
+func DetermineModelNumber(instructions []string) (int, int, error) {
+	constants, err := determineConstants(instructions)
+	if err != nil {
+		return 0, 0, err
+	}
+	reverseFunctions := make([]func(z int, results map[int][][]int) map[int][][]int, 14)
+	for i, c := range constants {
+		reverseFunctions[i] = reverseMonad(c[0], c[1], c[2])
+	}
+	solutions := make([]map[int][][]int, 14)
+	solutions[13] = reverseFunctions[13](0, map[int][][]int{})
+	for i := 12; i >= 0; i-- {
+		solutions[i] = map[int][][]int{}
+		for z := range solutions[i+1] {
+			reverseFunctions[i](z, solutions[i])
+		}
+	}
+
+	minS, maxS := "", ""
+	zMin, zMax := 0, 0
+	for i := 0; i <= 13; i++ {
+		minimum := solutions[i][zMin]
+		sort.Slice(minimum, func(i, j int) bool {
+			return minimum[i][1] < minimum[j][1]
+		})
+		zMin = minimum[0][0]
+		minS += fmt.Sprintf("%d", minimum[0][1])
+
+		maximum := solutions[i][zMax]
+		sort.Slice(maximum, func(i, j int) bool {
+			return maximum[i][1] > maximum[j][1]
+		})
+		zMax = maximum[0][0]
+		maxS += fmt.Sprintf("%d", maximum[0][1])
+	}
+
+	processor := newALU([]string{"w", "x", "y", "z"}, minS)
 	for _, i := range instructions {
 		err := processor.Execute(i)
 		if err != nil {
-			return 0, err
+			return 0, 0, err
 		}
 	}
-	return model, nil
-}
-
-type ModelNumberPart struct {
-	value  int
-	length int
-	z      int
-	rules  []DigitModifier
-}
-
-func (m *ModelNumberPart) suffix() string {
-	s := fmt.Sprintf("%d", m.value)
-	v := m.value
-	for i := len(m.rules) - 1; i >= 0; i-- {
-		v = m.rules[i](v)
-		s += fmt.Sprintf("%d", v)
+	if processor.registers["z"].value != 0 {
+		return 0, 0, errors.New("minimum value not correct")
 	}
-	return s
-}
 
-type DigitModifier func(a int) int
-
-func DetermineDigitRule(baseline string, instructions []string) {
-	optimal := &ModelNumberPart{
-		value: 1,
-		rules: nil,
+	processor = newALU([]string{"w", "x", "y", "z"}, maxS)
+	for _, i := range instructions {
+		err := processor.Execute(i)
+		if err != nil {
+			return 0, 0, err
+		}
 	}
-	for len(baseline) > 1 {
-		results := make([]*ModelNumberPart, 9)
-		for i := 9; i > 0; i-- {
-			results[i-1] = &ModelNumberPart{
-				value: i,
-				rules: optimal.rules,
-			}
-			processor := newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%s", baseline, results[i-1].suffix()))
-			for _, i := range instructions {
-				err := processor.Execute(i)
-				if err != nil {
-					return
-				}
-			}
-			results[i-1].z = processor.registers["z"].value
-		}
-		sort.Slice(results, func(i, j int) bool {
-			return results[i].z < results[j].z
-		})
-		for _, rs := range results {
-			fmt.Println(fmt.Sprintf("%s%s", baseline, rs.suffix()), rs.value, rs.z, rs.suffix(), baseline)
-		}
-		r := determineRule(baseline, results[0], instructions)
-		optimal.rules = r
-		baseline = baseline[:len(baseline)-1]
-		fmt.Println("OPTIMAL", optimal.suffix())
+	if processor.registers["z"].value != 0 {
+		return 0, 0, errors.New("minimum value not correct")
 	}
-	fmt.Println(optimal.suffix())
-}
-
-func determineRule(baseline string, m *ModelNumberPart, instructions []string) []DigitModifier {
-	a, b := int(baseline[len(baseline)-1]-runeOffset), m.value
-	fmt.Println(a, b)
-	possibleRules := []DigitModifier{
-		func(i int) int {
-			x := (i + b - a) % 10
-			if x == 0 {
-				return 1
-			}
-			return x
-		},
-		//func(i int) int {
-		//	return b
-		//},
+	valMin, err := strconv.Atoi(minS)
+	if err != nil {
+		return 0, 0, err
 	}
-	/*
-		for j := 2; j <= 4; j++ {
-			if a*j == b {
-				possibleRules = append(possibleRules, func(i int) int {
-					x = (i * j) % 10
-					if x == 0 {
-						return 1
-					}
-					return x
-				})
-			}
-			if b*j == a {
-				possibleRules = append(possibleRules, func(i int) int {
-					x = (i / j)
-					if x == 0 {
-						return 1
-					}
-				})
-			}
-		}
-	*/
-	results := []*ModelNumberPart{}
-	baseline = baseline[:len(baseline)-1]
-	for _, r := range possibleRules {
-		part := &ModelNumberPart{
-			value: 2,
-			rules: append(m.rules, r),
-		}
-		processor := newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%d%s", baseline, 2, part.suffix()))
-		for _, i := range instructions {
-			err := processor.Execute(i)
-			if err != nil {
-				return nil
-			}
-		}
-		part.z = processor.registers["z"].value
-		results = append(results, part)
-
-		part = &ModelNumberPart{
-			value: 8,
-			rules: append(m.rules, r),
-		}
-		processor = newALU([]string{"w", "x", "y", "z"}, fmt.Sprintf("%s%d%s", baseline, 8, part.suffix()))
-		for _, i := range instructions {
-			err := processor.Execute(i)
-			if err != nil {
-				return nil
-			}
-		}
-		part.z = processor.registers["z"].value
-		results = append(results, part)
+	valMax, err := strconv.Atoi(maxS)
+	if err != nil {
+		return 0, 0, err
 	}
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].z < results[j].z
-	})
-	return results[0].rules
-}
-
-func DetermineModelNumber(instructions []string) (int, error) {
-	// DetermineDigitRule("1111111111111", instructions)
-	FindModelNumber(instructions)
-
-	return 0, nil
+	return valMax, valMin, nil
 }
 
 func Challenge(path string) (int, int) {
@@ -312,9 +299,9 @@ func Challenge(path string) (int, int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = DetermineModelNumber(lines)
+	a, b, err := DetermineModelNumber(lines)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return 74929995999389, 11118151637112 // Hardcoded pen and paper results.
+	return a, b
 }
