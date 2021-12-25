@@ -2,6 +2,8 @@
 
 My set of solutions for [Advent of Code 2021](https://adventofcode.com/2021), written in Golang because I'm _lazy_.
 
+> ...did you know crab submarines come with colored lights?
+
 ## Running
 
 My inputs from the challenges are all stored in the `inputs` directory, and at the time of writing these files are effectively hardcoded into the running.
@@ -31,5 +33,5 @@ Day | Challenge |Day | Challenge
 9 | `smokebasin` | 22 | `reactorreboot`
 10 | `syntaxscoring` | 23 | `amphipod`
 11 | `dumbooctopus` | 24 | `alu`
-12 | `passagepathing` | 25 |
+12 | `passagepathing` | 25 | `seacucumber`
 13 | `transparentorigami`
