@@ -16,6 +16,7 @@ import (
 	"advent/solutions/packetdecoder"
 	"advent/solutions/passagepathing"
 	"advent/solutions/reactorreboot"
+	"advent/solutions/seacucumber"
 	"advent/solutions/sevensegmentsearch"
 	"advent/solutions/smokebasin"
 	"advent/solutions/snailmaths"
@@ -61,6 +62,7 @@ func main() {
 		"reactorreboot",
 		"amphipod",
 		"alu",
+		"seacucumber",
 	}
 	if *all {
 		previous := time.Now()
@@ -152,6 +154,9 @@ func RunChallenge(challenge string) string {
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	case "alu":
 		A, B := alu.Challenge(input)
+		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
+	case "seacucumber":
+		A, B := seacucumber.Challenge(input)
 		res = fmt.Sprintf("%s Results A: %d B: %d", challenge, A, B)
 	}
 	return res
